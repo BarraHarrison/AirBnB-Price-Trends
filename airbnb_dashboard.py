@@ -1,6 +1,4 @@
 import streamlit as st
-st.set_page_config(page_title="Airbnb NYC Dashboard", layout="wide")
-
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -8,6 +6,8 @@ from plotly.subplots import make_subplots
 from sklearn.cluster import KMeans
 import statsmodels.api as sm
 import numpy as np
+
+st.set_page_config(page_title="Airbnb NYC Dashboard", layout="wide")
 
 @st.cache_data
 def load_data():
@@ -82,55 +82,54 @@ st.plotly_chart(fig_hist, use_container_width=True)
 st.subheader("📊 Summary Statistics")
 st.dataframe(filtered_df.describe(include='all'))
 
-st.subheader("📍 Price vs. Distance to NYC Landmarks (Combined View)")
-filtered_price = df[df['price'] < 1000]
+if st.checkbox("📍 Show Combined Landmark Plot"):
+    filtered_price = df[df['price'] < 1000]
 
-def lowess_line(x, y):
-    lowess = sm.nonparametric.lowess(y, x, frac=0.3)
-    return lowess[:, 0], lowess[:, 1]
+    def lowess_line(x, y):
+        lowess = sm.nonparametric.lowess(y, x, frac=0.3)
+        return lowess[:, 0], lowess[:, 1]
 
-fig = make_subplots(
-    rows=1, cols=3,
-    subplot_titles=("Distance to Times Square", "Distance to Central Park", "Distance to DUMBO"),
-    shared_yaxes=True, horizontal_spacing=0.07
-)
+    fig = make_subplots(
+        rows=1, cols=3,
+        subplot_titles=("Distance to Times Square", "Distance to Central Park", "Distance to DUMBO"),
+        shared_yaxes=True, horizontal_spacing=0.07
+    )
 
-x1, y1 = lowess_line(filtered_price['dist_to_times_square'], filtered_price['price'])
-fig.add_trace(go.Scatter(x=filtered_price['dist_to_times_square'], y=filtered_price['price'],
-                         mode='markers', marker=dict(size=3, opacity=0.5, color='blue'), name="Times Sq"),
-              row=1, col=1)
-fig.add_trace(go.Scatter(x=x1, y=y1, mode='lines', line=dict(color='red'), name="Trendline"),
-              row=1, col=1)
+    x1, y1 = lowess_line(filtered_price['dist_to_times_square'], filtered_price['price'])
+    fig.add_trace(go.Scatter(x=filtered_price['dist_to_times_square'], y=filtered_price['price'],
+                             mode='markers', marker=dict(size=3, opacity=0.5, color='blue'), name="Times Sq"),
+                  row=1, col=1)
+    fig.add_trace(go.Scatter(x=x1, y=y1, mode='lines', line=dict(color='red'), name="Trendline"),
+                  row=1, col=1)
 
-x2, y2 = lowess_line(filtered_price['dist_to_central_park'], filtered_price['price'])
-fig.add_trace(go.Scatter(x=filtered_price['dist_to_central_park'], y=filtered_price['price'],
-                         mode='markers', marker=dict(size=3, opacity=0.5, color='green'), name="Central Park"),
-              row=1, col=2)
-fig.add_trace(go.Scatter(x=x2, y=y2, mode='lines', line=dict(color='black'), name="Trendline"),
-              row=1, col=2)
+    x2, y2 = lowess_line(filtered_price['dist_to_central_park'], filtered_price['price'])
+    fig.add_trace(go.Scatter(x=filtered_price['dist_to_central_park'], y=filtered_price['price'],
+                             mode='markers', marker=dict(size=3, opacity=0.5, color='green'), name="Central Park"),
+                  row=1, col=2)
+    fig.add_trace(go.Scatter(x=x2, y=y2, mode='lines', line=dict(color='black'), name="Trendline"),
+                  row=1, col=2)
 
-x3, y3 = lowess_line(filtered_price['dist_to_dumbo'], filtered_price['price'])
-fig.add_trace(go.Scatter(x=filtered_price['dist_to_dumbo'], y=filtered_price['price'],
-                         mode='markers', marker=dict(size=3, opacity=0.5, color='orange'), name="DUMBO"),
-              row=1, col=3)
-fig.add_trace(go.Scatter(x=x3, y=y3, mode='lines', line=dict(color='blue'), name="Trendline"),
-              row=1, col=3)
+    x3, y3 = lowess_line(filtered_price['dist_to_dumbo'], filtered_price['price'])
+    fig.add_trace(go.Scatter(x=filtered_price['dist_to_dumbo'], y=filtered_price['price'],
+                             mode='markers', marker=dict(size=3, opacity=0.5, color='orange'), name="DUMBO"),
+                  row=1, col=3)
+    fig.add_trace(go.Scatter(x=x3, y=y3, mode='lines', line=dict(color='blue'), name="Trendline"),
+                  row=1, col=3)
 
-fig.update_layout(
-    height=500, width=1100,
-    title_text="💸 Price vs. Distance to NYC Landmarks",
-    showlegend=False
-)
+    fig.update_layout(
+        height=500, width=1100,
+        title_text="💸 Price vs. Distance to NYC Landmarks",
+        showlegend=False
+    )
 
-fig.update_xaxes(title_text="Distance (km)", row=1, col=1)
-fig.update_xaxes(title_text="Distance (km)", row=1, col=2)
-fig.update_xaxes(title_text="Distance (km)", row=1, col=3)
-fig.update_yaxes(title_text="Price (per night $)", row=1, col=1)
+    fig.update_xaxes(title_text="Distance (km)", row=1, col=1)
+    fig.update_xaxes(title_text="Distance (km)", row=1, col=2)
+    fig.update_xaxes(title_text="Distance (km)", row=1, col=3)
+    fig.update_yaxes(title_text="Price (per night $)", row=1, col=1)
 
-st.plotly_chart(fig, use_container_width=True)
-st.subheader("📍 Price vs. Distance to Tourist Landmarks")
+    st.plotly_chart(fig, use_container_width=True)
 
-with st.container():
+with st.expander("📌 Explore Landmark Influence on Price (Dropdown View)"):
     landmark = st.selectbox("Choose a Landmark", ("Times Square", "Central Park", "DUMBO"))
 
     if landmark == "Times Square":
