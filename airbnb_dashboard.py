@@ -128,33 +128,40 @@ fig.update_xaxes(title_text="Distance (km)", row=1, col=3)
 fig.update_yaxes(title_text="Price (per night $)", row=1, col=1)
 
 st.plotly_chart(fig, use_container_width=True)
+st.subheader("📍 Price vs. Distance to Tourist Landmarks")
 
-st.subheader("📌 Select a Landmark to View Price vs. Distance")
-landmark = st.selectbox("Choose a landmark", ["Times Square", "Central Park", "DUMBO"])
+with st.container():
+    landmark = st.selectbox("Choose a Landmark", ("Times Square", "Central Park", "DUMBO"))
 
-if landmark == "Times Square":
-    fig_landmark = px.scatter(
-        df[df['price'] < 1000],
-        x="dist_to_times_square", y="price",
-        trendline="lowess", opacity=0.5,
-        labels={"dist_to_times_square": "Distance to Times Square (km)", "price": "Price ($)"},
-        title="Price vs. Distance to Times Square"
-    )
-elif landmark == "Central Park":
-    fig_landmark = px.scatter(
-        df[df['price'] < 1000],
-        x="dist_to_central_park", y="price",
-        trendline="lowess", opacity=0.5,
-        labels={"dist_to_central_park": "Distance to Central Park (km)", "price": "Price ($)"},
-        title="Price vs. Distance to Central Park"
-    )
-else:
-    fig_landmark = px.scatter(
-        df[df['price'] < 1000],
-        x="dist_to_dumbo", y="price",
-        trendline="lowess", opacity=0.5,
-        labels={"dist_to_dumbo": "Distance to DUMBO (km)", "price": "Price ($)"},
-        title="Price vs. Distance to DUMBO"
-    )
+    if landmark == "Times Square":
+        fig = px.scatter(
+            df[df['price'] < 1000],
+            x="dist_to_times_square", y="price",
+            trendline="lowess",
+            labels={"dist_to_times_square": "Distance to Times Square (km)", "price": "Price (per night $)"},
+            title="💸 Price vs. Distance to Times Square",
+            opacity=0.5
+        )
+        st.plotly_chart(fig, use_container_width=True)
 
-st.plotly_chart(fig_landmark, use_container_width=True)
+    elif landmark == "Central Park":
+        fig = px.scatter(
+            df[df['price'] < 1000],
+            x="dist_to_central_park", y="price",
+            trendline="lowess",
+            labels={"dist_to_central_park": "Distance to Central Park (km)", "price": "Price (per night $)"},
+            title="🌳 Price vs. Distance to Central Park",
+            opacity=0.5
+        )
+        st.plotly_chart(fig, use_container_width=True)
+
+    elif landmark == "DUMBO":
+        fig = px.scatter(
+            df[df['price'] < 1000],
+            x="dist_to_dumbo", y="price",
+            trendline="lowess",
+            labels={"dist_to_dumbo": "Distance to DUMBO (km)", "price": "Price (per night $)"},
+            title="🌉 Price vs. Distance to DUMBO",
+            opacity=0.5
+        )
+        st.plotly_chart(fig, use_container_width=True)
