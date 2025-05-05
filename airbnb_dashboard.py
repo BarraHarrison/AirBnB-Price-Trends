@@ -21,8 +21,9 @@ def load_data():
   
     return df
 
-df = load_data()
 st.set_page_config(page_title="Airbnb NYC Dashboard", layout="wide")
+df = load_data()
+
 
 st.title("🏙️ Airbnb Price Trends - NYC")
 st.markdown("Explore pricing, availability, and listing patterns across New York City.")
